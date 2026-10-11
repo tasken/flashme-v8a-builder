@@ -25,7 +25,15 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match.
 
 > [!NOTE]
-> The labels `v3`, `v5`, `v6` and `v7` are [dscfw](https://github.com/Wokann/dscfw) numbers, not Nintendo's. Match your firmware by build date.
+> Three numbering systems are in play:
+> *   **Community naming** (`v3`, `v5`, `v6`, `v7`): the names used in this project and in [dscfw](https://github.com/Wokann/dscfw). The community assigned them from the firmware build date and release order, so they run on from the Phat to the Lite.
+> *   **Nintendo's own versions**: Phat v5 is `NTR-WORLD WIDE-Ver5.0`, but the Lite restarts the count, so v6 is `USG-WORLD WIDE-Ver2.0` and v7 is `USG-WORLD WIDE-Ver3.0`. `NTR` is the DS Phat and `USG` is the DS Lite. `WORLD WIDE` is the international release, the only one this project supports. The iQue (`CHN [iQue]`) and Korean (`KOR`) firmware are not supported.
+> *   **FlashMe's own versions**: `v8a` is the FlashMe release, unrelated to the two above.
+>
+> Match your firmware by build date, not by number. See [DS firmware history](https://wokann.github.io/2026/04/28/DS-firmware-history.html) for details.
+
+> [!NOTE]
+> The installer picks the Phat or Lite image by the console's power-management chip, not by the firmware on it. Late Phat boards (marked CPU20) have the Lite chip, so they receive the Lite image.
 
 ## Installers
 
