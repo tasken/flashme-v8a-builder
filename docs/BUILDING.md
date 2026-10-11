@@ -49,12 +49,16 @@ To check the installers against the public release, copy `out/` aside after the 
 > [!NOTE]
 > Three numbering systems are in play:
 > *   **Community naming** (`v3`, `v5`, `v6`, `v7`): the names used in this project and in [dscfw](https://github.com/Wokann/dscfw). The community assigned them from the firmware build date and release order, so they run on from the Phat to the Lite.
-> *   **Nintendo's own versions**: Phat v5 is `NTR-WORLD WIDE-Ver5.0`, but the Lite restarts the count, so v6 is `USG-WORLD WIDE-Ver2.0` and v7 is `USG-WORLD WIDE-Ver3.0`. `NTR` is the DS Phat and `USG` is the DS Lite. `WORLD WIDE` is the international release, the only one this project supports. The iQue (`CHN [iQue]`) and Korean (`KOR`) firmware are not supported.
+> *   **Nintendo's own versions**: Phat v5 is `NTR-WORLD WIDE-Ver5.0`, but the Lite restarts the count, so v6 is `USG-WORLD WIDE-Ver2.0` and v7 is `USG-WORLD WIDE-Ver3.0`. These names combine Nintendo's separate console, region, and version fields; they are not single strings stored in the firmware. `NTR` is the DS Phat and `USG` is the DS Lite. `WORLD WIDE` is the international release, the only one this project supports. The iQue (`CHN [iQue]`) and Korean (`KOR`) firmware are not supported.
 > *   **FlashMe's own versions** (`v1` to `v8a`): FlashMe's release history, independent of the two above.
 >
 > Every public FlashMe Phat image is based on official v3 and every Lite image on official v6. This project adds a Phat image based on official v5 and a Lite image based on official v7.
 >
 > Match your firmware by build date, not by number. See [DS firmware history](https://wokann.github.io/2026/04/28/DS-firmware-history.html) for details.
+
+## Firmware research
+
+[dsofw](https://github.com/Wokann/dsofw) documents reconstructed original firmware components, their runtime addresses, and the evidence used to identify those addresses. Its v5 and v7 symbol maps match the maps used by this builder. See its [technical notes](https://github.com/Wokann/dsofw/blob/master/TECHNICAL.md) and [v5](https://github.com/Wokann/dsofw/blob/master/include/official_v5_sym.inc) and [v7](https://github.com/Wokann/dsofw/blob/master/include/official_v7_sym.inc) maps.
 
 ## Reporting a problem
 
