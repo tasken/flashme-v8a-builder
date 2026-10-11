@@ -1,0 +1,16 @@
+services:
+  builder:
+    build:
+      context: .
+      network: host
+      args:
+        BUILD_UID: ${BUILD_UID:-1000}
+        BUILD_GID: ${BUILD_GID:-1000}
+    image: dscfw-builder
+    user: "${BUILD_UID:-1000}:${BUILD_GID:-1000}"
+    network_mode: none
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    volumes:
+      - ./inputs:/inputs:ro
+      - ./out:/output

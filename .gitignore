@@ -1,0 +1,19 @@
+.env
+.env.local
+
+# User-supplied firmware dumps and personal console data (never published)
+inputs/
+
+# Build output: images and installers contain Nintendo firmware code
+out/
+logs/
+
+# Intermediate build files
+build/
+temp/
+*.o
+*.elf
+*.bin
+*.nds
+__pycache__/
+*.pyc
