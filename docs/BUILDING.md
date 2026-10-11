@@ -16,15 +16,15 @@ cd flashme-v8a-builder/
 
 | File in `inputs/` | What it is | SHA-256 |
 |---|---|---|
-| `official_v3.bin` | Phat, 2005/02/28 | `b53bdcbfaed186137ef30d574c7b89799754eb29db14b24347502ce85ed00e59` |
-| `official_v5.bin` | Phat, 2005/12/07 | `30096cfc584accea91c9ee978b7ba2edecb5b72916ad16f4ddd192741f34ca4d` |
-| `official_v6.bin` | Lite, 2006/02/05 | `de8606c25734f5e7ed2d6ce2aff4ee613d3b9a20fb071fb6c718b3c2bebcd8da` |
-| `official_v7.bin` | Lite, 2006/03/08 | `c0cdca32a58c33a288a2007fa0593b59fe689173ceeee973488e6aef7899fe06` |
+| `official_v3.bin` | Phat, 2005/02/28 | `c8eefb282b96fc6e86c8957dbab95fef5fd3fbd72afd6faaa5b9f0e9bc59bd92` |
+| `official_v5.bin` | Phat, 2005/12/07 | `ef4583cc7d1b670f156d0bd63185113c7ef1985077b46bea1d1b483399f6f3d4` |
+| `official_v6.bin` | Lite, 2006/02/05 | `414ba292764d085fabccf62d4f9d5dfc497365ef7175154ef3c1c6c64588479d` |
+| `official_v7.bin` | Lite, 2006/03/08 | `28c285959d12e3f1ac0980bccd7aa13823f9ff8000b76c83c118bbfff0abcf46` |
 | `flashme/FlashMe_v8a.zip` | FlashMe v8a release | `6bb7efdba869a0d8887f176770d2f6c2c3ae880dec94f436bb9f6a8c879c16be` |
 
 `official_v5.bin` and `official_v7.bin` are only needed for `./docker-build.sh build --update`. The default build uses v3 and v6.
 
-The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match.
+The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match. For firmware dumps, the hash covers only the valid firmware data, the same range the official CRC covers, and sets the private header bytes `0x28` to `0x16F` (MAC address, Wi-Fi calibration) to `FF` first. A dump from another console that differs only in that private data gives the same hash. The FlashMe release zip is hashed whole.
 
 `build` cleans first, then builds one set: the default one, or the latest with `--update`. `./docker-build.sh clean` only removes `out/` and `logs/`. The first build needs internet, and later builds reuse the cached image. The build runs as your own user, so `out/` and `logs/` belong to you.
 
