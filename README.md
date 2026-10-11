@@ -8,53 +8,8 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 > [!NOTE]
 > This repository contains no Nintendo firmware, BIOS or prebuilt FlashMe files, only build scripts and patch sources. You supply your own firmware dumps and the public FlashMe release. The images and installers you build contain Nintendo's firmware, so don't share them. This project isn't affiliated with or endorsed by Nintendo. Nintendo DS and DS Lite are trademarks of Nintendo.
 
-## Getting started
-
-1. Put your firmware dumps in `inputs/`, named as in the table below.
-1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
-1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
-
-| File in `inputs/` | What it is | SHA-256 |
-|---|---|---|
-| `official_v3.bin` | Phat, 2005/02/28 | `b53bdcbfaed186137ef30d574c7b89799754eb29db14b24347502ce85ed00e59` |
-| `official_v5.bin` | Phat, 2005/12/07 | `30096cfc584accea91c9ee978b7ba2edecb5b72916ad16f4ddd192741f34ca4d` |
-| `official_v6.bin` | Lite, 2006/02/05 | `de8606c25734f5e7ed2d6ce2aff4ee613d3b9a20fb071fb6c718b3c2bebcd8da` |
-| `official_v7.bin` | Lite, 2006/03/08 | `c0cdca32a58c33a288a2007fa0593b59fe689173ceeee973488e6aef7899fe06` |
-| `flashme/FlashMe_v8a.zip` | FlashMe v8a release | `6bb7efdba869a0d8887f176770d2f6c2c3ae880dec94f436bb9f6a8c879c16be` |
-
-`official_v5.bin` and `official_v7.bin` are only needed for `./docker-build.sh build --update`. The default build uses v3 and v6.
-
 > [!IMPORTANT]
 > The `--update` build is experimental. It is not an official FlashMe release, so back up your own firmware before flashing it.
-
-The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match.
-
-> [!NOTE]
-> Three numbering systems are in play:
-> *   **Community naming** (`v3`, `v5`, `v6`, `v7`): the names used in this project and in [dscfw](https://github.com/Wokann/dscfw). The community assigned them from the firmware build date and release order, so they run on from the Phat to the Lite.
-> *   **Nintendo's own versions**: Phat v5 is `NTR-WORLD WIDE-Ver5.0`, but the Lite restarts the count, so v6 is `USG-WORLD WIDE-Ver2.0` and v7 is `USG-WORLD WIDE-Ver3.0`. `NTR` is the DS Phat and `USG` is the DS Lite. `WORLD WIDE` is the international release, the only one this project supports. The iQue (`CHN [iQue]`) and Korean (`KOR`) firmware are not supported.
-> *   **FlashMe's own versions** (`v1` to `v8a`): FlashMe's release history, independent of the two above.
->
-> Every public FlashMe Phat image is based on official v3 and every Lite image on official v6. This project adds a Phat image based on official v5 and a Lite image based on official v7.
->
-> Match your firmware by build date, not by number. See [DS firmware history](https://wokann.github.io/2026/04/28/DS-firmware-history.html) for details.
-
-> [!NOTE]
-> The installer picks the Phat or Lite image by the console's power-management chip, not by the firmware on it. Late Phat boards (marked CPU20) have the Lite chip, so they receive the Lite image.
-
-## Installers
-
-| File | Contains |
-|---|---|
-| `flashme_v8a*.nds` | Phat on official v3 and Lite on official v6. Identical to the public installers |
-| `flashme_v8a_update*.nds` | Experimental. Phat on official v5 and Lite on official v7. Built with `--update` |
-
-Every installer comes in four variants:
-
-*   `flashme_v8a`: Select boots the stock firmware, and A+B+X+Y starts FlashMe
-*   `_noauto`: Select at power-on starts FlashMe
-*   `_stealth`: skips the backlight fade on a normal boot
-*   `_stealth_noauto`: both of the above
 
 > [!CAUTION]
 > This writes to your console's firmware flash. A power loss while flashing can brick it. Use a charged battery, back up your own `firmware.bin` first, and keep the SL1 short ready. There is no warranty of any kind.
@@ -62,25 +17,12 @@ Every installer comes in four variants:
 > [!WARNING]
 > The default installers put the Phat v3 and Lite v6 firmware on your console. On a newer console (Phat v4 or v5, Lite v7) that is a downgrade. Use `--update` for those.
 
-## Building
+> [!NOTE]
+> The installer picks the Phat or Lite image by the console's power-management chip, not by the firmware on it. Late Phat boards (marked CPU20) have the Lite chip, so they receive the Lite image.
 
-You need Docker with `sudo` access, and Python 3.
+## Documentation
 
-```shell
-git clone https://github.com/tasken/flashme-v8a-builder.git
-cd flashme-v8a-builder/
-./docker-build.sh build
-```
-
-`build` cleans first, then builds one set: the default one, or the latest with `--update`. `./docker-build.sh clean` only removes `out/` and `logs/`. The first build needs internet, and later builds reuse the cached image.
-
-The build runs as your own user, so `out/` and `logs/` belong to you.
-
-To check the installers against the public release, copy `out/` aside after the default build, run the update build, then run `python3 tools/check_installers.py <default out> out`.
-
-## Reporting a problem
-
-Attach `logs/build.log` and [open an issue](https://github.com/tasken/flashme-v8a-builder/issues) with what you ran and what happened.
+*   [Building](docs/BUILDING.md): inputs, build commands, installers, version numbers and reporting a problem.
 
 ## Credits
 
