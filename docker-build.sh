@@ -27,13 +27,20 @@ compose() {
 	sudo docker compose "$@" 2>&1 | tee -a "$LOG"
 }
 
+# Every input must exist and match the SHA-256 listed in tools/inputs.sha256.
 require_inputs() {
-	local firmware
-	for firmware in "$@"; do
-		if [[ ! -f "inputs/official_${firmware}.bin" ]]; then
+	local file
+	for file in "${@/#/official_}" flashme/FlashMe_v8a.zip; do
+		file="${file%.bin}"
+		[[ $file == flashme/* ]] || file="$file.bin"
+		if [[ ! -f "inputs/$file" ]]; then
 			printf '%s\n' \
-				"Missing inputs/official_${firmware}.bin." \
-				"Firmware dumps are user-provided and are not downloaded or included in the image." >&2
+				"Missing inputs/$file." \
+				"Firmware dumps and the FlashMe release are user-provided and are not downloaded or included in the image." >&2
+			return 1
+		fi
+		if ! (cd inputs && grep -F -- "  $file" ../tools/inputs.sha256 | sha256sum --check --status); then
+			printf '%s\n' "inputs/$file does not match the expected SHA-256 in tools/inputs.sha256." >&2
 			return 1
 		fi
 	done

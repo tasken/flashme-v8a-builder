@@ -14,13 +14,15 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
 1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
 
-| File in `inputs/` | What it is |
-|---|---|
-| `official_v3.bin` | DS Phat firmware, 2005/02/28 |
-| `official_v5.bin` | DS Phat firmware, 2005/12/07 (only for `--update`) |
-| `official_v6.bin` | DS Lite firmware, 2006/02/05 |
-| `official_v7.bin` | DS Lite firmware, 2006/03/08 (only for `--update`) |
-| `flashme/FlashMe_v8a.zip` | The public FlashMe v8a release |
+| File in `inputs/` | What it is | SHA-256 |
+|---|---|---|
+| `official_v3.bin` | DS Phat firmware, 2005/02/28 | `b53bdcbfaed186137ef30d574c7b89799754eb29db14b24347502ce85ed00e59` |
+| `official_v5.bin` | DS Phat firmware, 2005/12/07 (only for `--update`) | `30096cfc584accea91c9ee978b7ba2edecb5b72916ad16f4ddd192741f34ca4d` |
+| `official_v6.bin` | DS Lite firmware, 2006/02/05 | `de8606c25734f5e7ed2d6ce2aff4ee613d3b9a20fb071fb6c718b3c2bebcd8da` |
+| `official_v7.bin` | DS Lite firmware, 2006/03/08 (only for `--update`) | `c0cdca32a58c33a288a2007fa0593b59fe689173ceeee973488e6aef7899fe06` |
+| `flashme/FlashMe_v8a.zip` | The public FlashMe v8a release | `6bb7efdba869a0d8887f176770d2f6c2c3ae880dec94f436bb9f6a8c879c16be` |
+
+The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match.
 
 > [!NOTE]
 > The labels `v3`, `v5`, `v6` and `v7` are [dscfw](https://github.com/Wokann/dscfw) numbers, not Nintendo's. Match your firmware by build date.
