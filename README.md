@@ -61,6 +61,8 @@ cd flashme-v8a-builder/
 
 The build runs as your own user, so `out/` and `logs/` belong to you.
 
+To check the installers against the public release, copy `out/` aside after the default build, run the update build, then run `python3 tools/check_installers.py <default out> out`.
+
 ## Reporting a problem
 
 Attach `logs/build.log` and [open an issue](https://github.com/tasken/flashme-v8a-builder/issues) with what you ran and what happened.
