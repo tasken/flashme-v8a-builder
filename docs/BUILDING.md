@@ -60,6 +60,8 @@ To check the installers against the public release, copy `out/` aside after the 
 
 [dsofw](https://github.com/Wokann/dsofw) documents reconstructed original firmware components, their runtime addresses, and the evidence used to identify those addresses. Its v5 and v7 symbol maps match the maps used by this builder. See its [technical notes](https://github.com/Wokann/dsofw/blob/master/TECHNICAL.md) and [v5](https://github.com/Wokann/dsofw/blob/master/include/official_v5_sym.inc) and [v7](https://github.com/Wokann/dsofw/blob/master/include/official_v7_sym.inc) maps.
 
+For the surrounding firmware workflow, including image inspection and hardware restore tools, see [Wokann DS firmware toolset](WOKANN-TOOLSET.md).
+
 ## Reporting a problem
 
 Attach `logs/build.log` and [open an issue](https://github.com/tasken/flashme-v8a-builder/issues) with what you ran and what happened.

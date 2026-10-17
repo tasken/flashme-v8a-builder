@@ -14,6 +14,7 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 ## Documentation
 
 *   [Building](docs/BUILDING.md): inputs, build commands, installers, version numbers and reporting a problem.
+*   [Wokann DS firmware toolset](docs/WOKANN-TOOLSET.md): related tools for inspecting, building, researching, and restoring DS firmware.
 
 ## Credits
 
