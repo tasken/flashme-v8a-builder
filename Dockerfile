@@ -1,8 +1,8 @@
 FROM debian:stable-slim AS tools
 
-ARG DSCFW_REF=7389c00230cdc494353916bb5742573efbf58a0f
+ARG DSCFW_REF=87cab6c5f5093e8845601ce4619a61bb032977f6
 ARG ARMIPS_REF=98757e2fdc79a21a1aeb884d05f4312125fffd68
-ARG DSFWTOOL_REF=b25dafbe7483037fc373bb8e7bb920778ed49d0a
+ARG DSFWTOOL_REF=71eec8c41946a6df8fb10ed05e6812669e38513b
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential ca-certificates cmake git \
@@ -44,12 +44,10 @@ RUN test "${BUILD_UID}" != 0 && test "${BUILD_GID}" != 0 && \
 COPY --from=tools --chown=builder:builder /src/dscfw /src/dscfw
 COPY --chown=builder:builder packages/ /src/dscfw/flashme/v8a/
 
-# The native dsfwtool lacks --layout; the wrapper accepts dscfw's Makefile command lines
-# (see tools/dsfwtool_wrapper.py) and packs byte for byte like the dsfwtool.exe shipped in dscfw.
+# The native dsfwtool supports --layout, so the Makefiles call it directly.
 COPY --from=tools /usr/local/bin/dsfwtool-native /usr/local/libexec/dsfwtool-native
-COPY --chown=builder:builder tools/dsfwtool_wrapper.py /src/dscfw/tools/dsfwtool/dsfwtool
-RUN chmod 0755 /src/dscfw/tools/dsfwtool/dsfwtool && \
-    ln -s /src/dscfw/tools/dsfwtool/dsfwtool /usr/local/bin/dsfwtool
+RUN ln -sf /usr/local/libexec/dsfwtool-native /src/dscfw/tools/dsfwtool/dsfwtool && \
+    ln -sf /usr/local/libexec/dsfwtool-native /usr/local/bin/dsfwtool
 
 USER builder
 WORKDIR /src/dscfw

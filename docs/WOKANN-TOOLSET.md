@@ -1,6 +1,6 @@
 # Wokann DS firmware toolset
 
-Inventory checked on 2026-10-17. This covers Wokann projects relevant to
+Inventory checked on 2026-10-23. This covers Wokann projects relevant to
 working with DS/DS Lite system firmware, building FlashMe images, and writing
 firmware to a console. It is not a catalog of Wokann's unrelated game,
 emulator, and save-file projects.
@@ -12,7 +12,7 @@ emulator, and save-file projects.
 | Inspect, extract, and assemble firmware images | [dsfwtool](https://github.com/Wokann/dsfwtool) | Reports firmware component layout; exports headers and components; compresses, encrypts, decrypts, and assembles images. | Use `dsfwtool -i image.bin` to inspect a dump. It operates on image files; it does not connect to or flash a console. |
 | Research original firmware | [dsofw](https://github.com/Wokann/dsofw) | Documents and reconstructs original Nintendo, iQue, and Korean firmware components, addresses, and version differences. | Use to check symbols and original firmware behavior before changing a version-specific patch. It is a research/build project, not a flasher. |
 | Build custom firmware | [dscfw](https://github.com/Wokann/dscfw) | Reconstructs historical FlashMe and DS Lite TV-out firmware builds from user-supplied firmware. Includes per-build layouts, source patches, and CRC records. | Use as source/reference when comparing a FlashMe variant. It requires the correct user-supplied base firmware and does not write to hardware. |
-| Assemble ARM code | [armips](https://github.com/Wokann/armips) | ARM/MIPS assembler, including Wokann's branch used by some DS firmware source builds. | Build dependency, not a firmware editor or flasher by itself. This builder pins its source revision in the Dockerfile. |
+| Assemble ARM code | [armips](https://github.com/Wokann/armips) | ARM/MIPS assembler, including Wokann's `flashme-arm-immediate-encoding` branch used by some DS firmware source builds. | Build dependency, not a firmware editor or flasher by itself. This builder pins its source revision in the Dockerfile. |
 | Build NDS ROM containers | [ndstool](https://github.com/Wokann/ndstool) | General NDS ROM packaging utility. | It packages homebrew ROMs; it does not inspect or write the internal firmware chip. |
 
 ## Firmware editing and flashing
@@ -36,10 +36,10 @@ this inventory. Do not treat it as a supplied CFW-Suite tool.
 2. Inspect each dump with `dsfwtool -i <dump.bin>` and compare the component
    layout, not only whole-file hashes. Whole dumps can differ in console-owned
    data even when their firmware components are identical.
-3. For the FlashMe v8a builder, use the existing pinned build environment and
-   wrapper. The project already uses Wokann's `armips` and `dsfwtool` as build
-   dependencies; `tools/dsfwtool_wrapper.py` adapts the native tool to the
-   layout behavior expected by the source package Makefiles.
+3. For the FlashMe v8a builder, use the existing pinned build environment. The
+   project uses Wokann's `armips` and the native `dsfwtool` as build
+   dependencies; the pinned `dsfwtool` revision supports `--layout`, so the
+   source package Makefiles call it directly.
 4. To restore an original dump on a DS/DS Lite, use CFW-Suite `fwManager` from
    the DSpico storage. Keep a copy of the correct console's backup, select its
    complete firmware image, and follow the on-screen prompt to short SL1 and
