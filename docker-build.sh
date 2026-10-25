@@ -12,6 +12,9 @@ VARIANTS=("normal:" "stealth:_stealth" "noauto:_noauto" "stealth-noauto:_stealth
 PACKAGE_ROOT=/src/dscfw/flashme/v8a
 LOG=logs/build.log
 ABOUT=no
+FIRMWARE_ONLY=no
+BUILT=()
+PUBLIC=()
 
 # docker compose reads these from .env, which survives sudo's environment reset.
 sync_env() {
@@ -28,15 +31,10 @@ compose() {
 	sudo docker compose "$@" 2>&1 | tee -a "$LOG"
 }
 
-# Every input must exist and match tools/inputs.sha256 (see tools/check_inputs.py for the hash rules).
+# Every named input must exist and match tools/inputs.sha256 (see tools/check_inputs.py for the hash rules).
 require_inputs() {
-	local version file
-	local -a files=()
-	for version in "$@"; do
-		files+=("official_${version}.bin")
-	done
-	files+=(flashme/FlashMe_v8a.zip)
-	for file in "${files[@]}"; do
+	local file
+	for file in "$@"; do
 		if [[ ! -f "inputs/$file" ]]; then
 			printf '%s\n' \
 				"Missing inputs/$file." \
@@ -44,7 +42,7 @@ require_inputs() {
 			return 1
 		fi
 	done
-	python3 tools/check_inputs.py "${files[@]}"
+	python3 tools/check_inputs.py "$@"
 }
 
 # Version shown by --about: short commit, "-dirty" with uncommitted changes or untracked files.
@@ -82,35 +80,87 @@ clean() {
 	rm -rf -- out/firmware out/installers logs/*.log
 }
 
-build_images() {
-	local update="$1"
-	if [[ $update == yes ]]; then
-		require_inputs v5 v7
-	else
-		require_inputs v3 v6
-	fi
-	mkdir -p out/firmware out/installers logs
-	: > "$LOG"
-	sync_env
+# plan_build <update: yes|no> sets BUILT (model:version pairs with a dump in inputs/) and PUBLIC (models that use the public image).
+plan_build() {
+	local update="$1" model version
+	local -a files=()
+	local -A versions=([phat]=v3 [lite]=v6)
+	[[ $update == yes ]] && versions=([phat]=v5 [lite]=v7)
 
-	compose build
-	if [[ $update == yes ]]; then
-		build_package phat_v5 v5 flashme_v8a_phat_v5 no
-		build_package lite_v7 v7 flashme_v8a_lite_v7 no
-	else
-		build_package phat v3 flashme_v8a_phat_v3 yes
-		build_package lite v6 flashme_v8a_lite_v6 yes
+	BUILT=() PUBLIC=()
+	for model in phat lite; do
+		version="${versions[$model]}"
+		if [[ -f "inputs/official_${version}.bin" ]]; then
+			BUILT+=("$model:$version")
+			files+=("official_${version}.bin")
+		else
+			PUBLIC+=("$model")
+		fi
+	done
+	if [[ $update == yes && ${#BUILT[@]} -eq 0 ]]; then
+		echo "--update needs inputs/official_v5.bin, inputs/official_v7.bin or both." >&2
+		return 1
 	fi
-	python3 tools/fresh_settings.py out/firmware/*.bin 2>&1 | tee -a "$LOG"
-	if [[ $update == yes ]]; then
-		python3 tools/finalize.py --update 2>&1 | tee -a "$LOG"
-	else
-		python3 tools/finalize.py 2>&1 | tee -a "$LOG"
+	if [[ $ABOUT == yes && ${#BUILT[@]} -eq 0 ]]; then
+		echo "--about needs at least one firmware dump to build; every slot would come from the public release." >&2
+		return 1
+	fi
+	if [[ $FIRMWARE_ONLY == no || ${#PUBLIC[@]} -gt 0 || -f inputs/flashme/FlashMe_v8a.zip ]]; then
+		files+=(flashme/FlashMe_v8a.zip)
+	fi
+	require_inputs "${files[@]}"
+}
+
+# Raw images lack the console's own data, so --firmware-only asks before anything runs.
+confirm_firmware_only() {
+	local answer
+	printf '%s\n' \
+		"These firmware images are not complete. They have no MAC address, Wi-Fi" \
+		"calibration, Wi-Fi settings or user settings. Never write them whole." \
+		"" \
+		"To flash one, use CFW-Suite fwManager (https://github.com/Wokann/CFW-Suite)" \
+		"and keep its default \"Reserve old ...\" options, which keep your console's" \
+		"own data. Do not choose \"Flash Complete Firmware\"." \
+		"" >&2
+	if [[ ! -t 0 ]]; then
+		echo "--firmware-only needs a terminal to confirm. Nothing was built." >&2
+		return 1
+	fi
+	read -r -p 'Type "yes" to confirm you understand: ' answer
+	if [[ $answer != yes ]]; then
+		echo "Not confirmed. Nothing was built." >&2
+		return 1
 	fi
 }
 
+build_images() {
+	local update="$1" pair model version
+	local -a finalize_args=()
+	mkdir -p out/firmware logs
+	: > "$LOG"
+
+	if [[ ${#BUILT[@]} -gt 0 ]]; then
+		sync_env
+		compose build
+	fi
+	for pair in "${BUILT[@]}"; do
+		model="${pair%%:*}"
+		version="${pair#*:}"
+		if [[ $update == yes ]]; then
+			build_package "${model}_${version}" "$version" "flashme_v8a_${model}_${version}" no
+		else
+			build_package "$model" "$version" "flashme_v8a_${model}_${version}" yes
+		fi
+	done
+	[[ $update == yes ]] && finalize_args+=(--update)
+	[[ $ABOUT == yes ]] && finalize_args+=(--about)
+	[[ $FIRMWARE_ONLY == yes ]] && finalize_args+=(--firmware-only)
+	python3 tools/finalize.py "${finalize_args[@]}" 2>&1 | tee -a "$LOG"
+	python3 tools/fresh_settings.py out/firmware/*.bin 2>&1 | tee -a "$LOG"
+}
+
 usage() {
-	printf '%s\n' "Usage: ./docker-build.sh build [--update] [--about]" "       ./docker-build.sh clean" >&2
+	printf '%s\n' "Usage: ./docker-build.sh build [--update] [--about] [--firmware-only]" "       ./docker-build.sh clean" >&2
 	exit 2
 }
 
@@ -121,9 +171,12 @@ case "${1:-build}" in
 			case "$option" in
 				--update) update=yes ;;
 				--about) ABOUT=yes ;;
+				--firmware-only) FIRMWARE_ONLY=yes ;;
 				*) usage ;;
 			esac
 		done
+		plan_build "$update"
+		[[ $FIRMWARE_ONLY == yes ]] && confirm_firmware_only
 		clean
 		build_images "$update"
 		;;

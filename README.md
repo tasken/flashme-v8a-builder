@@ -9,11 +9,11 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 > Pick the build for your console. The default installers flash Phat v3 and Lite v6, which downgrades a newer console. The `--update` installers flash Phat v5 and Lite v7 and are experimental. Phat boards marked CPU20 receive the Lite image.
 
 > [!NOTE]
-> This repository contains no Nintendo firmware. You supply your own dumps, and the images you build contain Nintendo's firmware, so don't share them.
+> This repository contains no Nintendo firmware. You supply the FlashMe release and any firmware dumps yourself. Every image and installer it builds contains Nintendo's firmware, so don't share them.
 
 ## Documentation
 
-*   [Building](docs/BUILDING.md): inputs, build commands, installers, version numbers and reporting a problem.
+*   [Building](docs/BUILDING.md): inputs, build commands, installers, firmware-only builds, version numbers and reporting a problem.
 *   [Wokann DS firmware toolset](docs/WOKANN-TOOLSET.md): related tools for inspecting, building, researching, and restoring DS firmware.
 
 ## Credits

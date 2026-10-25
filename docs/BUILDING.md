@@ -1,12 +1,12 @@
 # Building
 
-You need Docker with `sudo` access, and Python 3.
+You need Python 3. Building from a firmware dump also needs Docker with `sudo`.
 
 ## Getting started
 
-1. Put your firmware dumps in `inputs/`, named as in the table below.
+1. Put the FlashMe v8a release in `inputs/flashme/`. Dumps are optional: put any you have in `inputs/`, named as in the table below.
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
-1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`. The firmware images have blank user settings, so they start first-boot setup.
+1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
 
 ```shell
 git clone https://github.com/tasken/flashme-v8a-builder.git
@@ -15,7 +15,7 @@ cd flashme-v8a-builder/
 ```
 
 > [!WARNING]
-> Flash the installers, not the images in `out/firmware/`. An installer keeps your console's own data: MAC address, Wi-Fi calibration, Wi-Fi settings and user settings. A raw image has none of it.
+> Flash the installers, not the images in `out/firmware/`. An installer keeps your console's own data: MAC address, Wi-Fi calibration, Wi-Fi settings and user settings. A raw image has none of it. See [Firmware only](#firmware-only).
 
 | File in `inputs/` | What it is | SHA-256 |
 |---|---|---|
@@ -25,18 +25,18 @@ cd flashme-v8a-builder/
 | `official_v7.bin` | Lite, 2006/03/08 | `28c285959d12e3f1ac0980bccd7aa13823f9ff8000b76c83c118bbfff0abcf46` |
 | `flashme/FlashMe_v8a.zip` | FlashMe v8a release | `6bb7efdba869a0d8887f176770d2f6c2c3ae880dec94f436bb9f6a8c879c16be` |
 
-`official_v5.bin` and `official_v7.bin` are only needed for `./docker-build.sh build --update`. The default build uses v3 and v6.
-
 The build checks every file against these hashes (kept in `tools/inputs.sha256`) and stops if one doesn't match. For firmware dumps, the hash covers only the valid firmware data, the same range the official CRC covers, and sets the private header bytes `0x28` to `0x16F` (MAC address, Wi-Fi calibration) to `FF` first. A dump from another console that differs only in that private data gives the same hash. The FlashMe release zip is hashed whole.
 
-`build` cleans first, then builds one set: the default one, or the latest with `--update`. `./docker-build.sh clean` only removes `out/` and `logs/`. The first build needs internet, and later builds reuse the cached image. The build runs as your own user, so `out/` and `logs/` belong to you.
+## What gets built
 
-## Installers
+Each installer holds a Phat image and a Lite image. Each image is built from your dump if you have it, or else taken from the FlashMe release.
 
-| File | Contains |
-|---|---|
-| `flashme_v8a*.nds` | Phat on official v3 and Lite on official v6. Identical to the public installers |
-| `flashme_v8a_update*.nds` | Experimental. Phat on official v5 and Lite on official v7. Built with `--update` |
+*   `build`: Phat v3 and Lite v6, the same as the public installers. No dumps needed. With `official_v3.bin` or `official_v6.bin`, it rebuilds that image and stops if it differs from the public one.
+*   `build --update`: Phat v5 and Lite v7. Experimental. Needs `official_v5.bin`, `official_v7.bin` or both. A missing dump keeps the public v3 or v6 image, so that installer downgrades the other model. The build warns you.
+
+`build` always cleans first. `./docker-build.sh clean` removes `out/` and `logs/`. The first build from a dump needs internet to set up Docker.
+
+## Variants
 
 Every installer comes in four variants:
 
@@ -45,11 +45,17 @@ Every installer comes in four variants:
 *   `_stealth`: skips the backlight fade on a normal boot
 *   `_stealth_noauto`: both of the above
 
-To check the installers against the public release, copy `out/` aside after the default build, run the update build, then run `python3 tools/check_installers.py <default out> out`.
+To check that the update installers change only the firmware images: copy `out/` aside after `build`, run `build --update`, then run `python3 tools/check_installers.py <copy> out`.
+
+## Firmware only
+
+`--firmware-only` builds only `out/firmware/`, without installers. You must type `yes` to start it.
+
+The images in `out/firmware/` have blank user settings, so they start first-boot setup. Never flash one whole: it would break Wi-Fi and reset your settings. Use [CFW-Suite](https://github.com/Wokann/CFW-Suite) `fwManager`, keep its default `Reserve old ...` options, and do not choose `Flash Complete Firmware`. See [fwManager safety details](WOKANN-TOOLSET.md#fwmanager-safety-details).
 
 ## About stamp
 
-`--about` marks the images and installers. On the Settings page, Select shows `FlashMe v8a` and the commit, such as `e2279a8` (`-dirty` with local changes). The stamp reuses the "settings have been lost" message, so that message shows the stamp instead.
+`--about` marks the images built from your dumps, so it needs at least one. On the Settings page, Select shows `FlashMe v8a` and the commit, such as `e2279a8` (`-dirty` with local changes). The stamp reuses the "settings have been lost" message, so that message shows the stamp instead.
 
 ## Version numbers
 

@@ -74,6 +74,10 @@ provide a firmware restore writer. `dsfwtool` can inspect, extract, and build
 image files, but cannot flash them. For the hardware write/restore operation,
 CFW-Suite `fwManager` is the relevant Wokann tool.
 
+The images in `out/firmware/` lack your console's own data. To flash one, keep
+`fwManager`'s default `Reserve old ...` options, which keep that data. Never
+use `Flash Complete Firmware` with them: it breaks Wi-Fi.
+
 ## Source references
 
 - [CFW-Suite README](https://github.com/Wokann/CFW-Suite/blob/extend/README.md)
