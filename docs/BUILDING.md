@@ -6,13 +6,16 @@ You need Docker with `sudo` access, and Python 3.
 
 1. Put your firmware dumps in `inputs/`, named as in the table below.
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
-1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
+1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`. The firmware images have blank user settings, so they start first-boot setup.
 
 ```shell
 git clone https://github.com/tasken/flashme-v8a-builder.git
 cd flashme-v8a-builder/
 ./docker-build.sh build
 ```
+
+> [!WARNING]
+> Flash the installers, not the images in `out/firmware/`. An installer keeps your console's own data: MAC address, Wi-Fi calibration, Wi-Fi settings and user settings. A raw image has none of it.
 
 | File in `inputs/` | What it is | SHA-256 |
 |---|---|---|

@@ -84,10 +84,14 @@ build_images() {
 	if [[ $update == yes ]]; then
 		build_package phat_v5 v5 flashme_v8a_phat_v5 no
 		build_package lite_v7 v7 flashme_v8a_lite_v7 no
-		python3 tools/finalize.py --update 2>&1 | tee -a "$LOG"
 	else
 		build_package phat v3 flashme_v8a_phat_v3 yes
 		build_package lite v6 flashme_v8a_lite_v6 yes
+	fi
+	python3 tools/fresh_settings.py out/firmware/*.bin 2>&1 | tee -a "$LOG"
+	if [[ $update == yes ]]; then
+		python3 tools/finalize.py --update 2>&1 | tee -a "$LOG"
+	else
 		python3 tools/finalize.py 2>&1 | tee -a "$LOG"
 	fi
 }
