@@ -40,10 +40,12 @@ Each installer holds a Phat image and a Lite image. Each image is built from you
 
 Every installer comes in four variants:
 
-*   `flashme_v8a`: Select boots the stock firmware, and A+B+X+Y starts FlashMe
-*   `_noauto`: Select at power-on starts FlashMe
+*   `flashme_v8a`: starts a Slot-2 (GBA slot) flash cart on its own when the cart is a DS loader (`PASS` or `DSBooter`). Hold A+B+X+Y at power-on to force it, or Select to start the normal firmware
+*   `_noauto`: never starts Slot-2 on its own. Hold Select at power-on to start it
 *   `_stealth`: skips the backlight fade on a normal boot
 *   `_stealth_noauto`: both of the above
+
+FlashMe has no menu. It runs whatever DS code the Slot-2 cart holds, such as a flash cart's menu. With nothing to run (empty slot or a GBA game), the screen stays white. Hold power to switch off; nothing is written.
 
 To check that the update installers change only the firmware images: copy `out/` aside after `build`, run `build --update`, then run `python3 tools/check_installers.py <copy> out`.
 
