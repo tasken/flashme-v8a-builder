@@ -11,6 +11,7 @@ fi
 VARIANTS=("normal:" "stealth:_stealth" "noauto:_noauto" "stealth-noauto:_stealth_noauto")
 PACKAGE_ROOT=/src/dscfw/flashme/v8a
 LOG=logs/build.log
+ABOUT=no
 
 # docker compose reads these from .env, which survives sudo's environment reset.
 sync_env() {
@@ -46,16 +47,28 @@ require_inputs() {
 	python3 tools/check_inputs.py "${files[@]}"
 }
 
+# Version shown by --about: short commit, "-dirty" with uncommitted changes or untracked files.
+about_version() {
+	local commit
+	commit="$(git rev-parse --short=7 HEAD 2>/dev/null)" || { printf 'nogit'; return; }
+	[[ -z "$(git status --porcelain 2>/dev/null)" ]] || commit+="-dirty"
+	printf '%s' "$commit"
+}
+
 # build_package <package> <firmware> <image-name> <stored-crc16: yes|no>
 build_package() {
 	local package="$1" firmware="$2" name="$3" stored_crc="$4"
 	local pair variant suffix
-	local -a args
+	local -a target args
 
+	target=(pack)
+	if [[ $ABOUT == yes ]]; then
+		target=(-f Makefile -f ../include/about.mk about "ABOUT_FIRMWARE=${firmware#v}" "BUILD_VERSION=$(about_version)")
+	fi
 	for pair in "${VARIANTS[@]}"; do
 		variant="${pair%%:*}"
 		suffix="${pair#*:}"
-		args=("VARIANT=$variant" pack
+		args=("VARIANT=$variant" "${target[@]}"
 			"OUTPUT=/output/firmware/${name}${suffix}.bin"
 			"OFFICIAL_${firmware^^}=/inputs/official_${firmware}.bin")
 		if [[ $stored_crc == yes ]]; then
@@ -97,18 +110,20 @@ build_images() {
 }
 
 usage() {
-	printf '%s\n' "Usage: ./docker-build.sh build [--update]" "       ./docker-build.sh clean" >&2
+	printf '%s\n' "Usage: ./docker-build.sh build [--update] [--about]" "       ./docker-build.sh clean" >&2
 	exit 2
 }
 
 case "${1:-build}" in
 	build)
 		update=no
-		case "${2:-}" in
-			"") ;;
-			--update) update=yes ;;
-			*) usage ;;
-		esac
+		for option in "${@:2}"; do
+			case "$option" in
+				--update) update=yes ;;
+				--about) ABOUT=yes ;;
+				*) usage ;;
+			esac
+		done
 		clean
 		build_images "$update"
 		;;

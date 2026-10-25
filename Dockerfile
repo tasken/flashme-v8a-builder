@@ -49,6 +49,9 @@ COPY --from=tools /usr/local/bin/dsfwtool-native /usr/local/libexec/dsfwtool-nat
 RUN ln -sf /usr/local/libexec/dsfwtool-native /src/dscfw/tools/dsfwtool/dsfwtool && \
     ln -sf /usr/local/libexec/dsfwtool-native /usr/local/bin/dsfwtool
 
+# Used by --about builds.
+COPY --chown=builder:builder tools/about_text.py /src/dscfw/tools/about_text.py
+
 USER builder
 WORKDIR /src/dscfw
 CMD ["dsfwtool", "--help"]

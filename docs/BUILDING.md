@@ -47,6 +47,10 @@ Every installer comes in four variants:
 
 To check the installers against the public release, copy `out/` aside after the default build, run the update build, then run `python3 tools/check_installers.py <default out> out`.
 
+## About stamp
+
+`--about` marks the images and installers. On the Settings page, Select shows `FlashMe v8a` and the commit, such as `e2279a8` (`-dirty` with local changes). The stamp reuses the "settings have been lost" message, so that message shows the stamp instead.
+
 ## Version numbers
 
 > [!NOTE]
