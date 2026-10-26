@@ -53,9 +53,9 @@ about_version() {
 	printf '%s' "$commit"
 }
 
-# build_package <package> <firmware> <image-name> <stored-crc16: yes|no>
+# build_package <package> <firmware> <image-name>; each image must match its package's recorded CRC-16.
 build_package() {
-	local package="$1" firmware="$2" name="$3" stored_crc="$4"
+	local package="$1" firmware="$2" name="$3"
 	local pair variant suffix
 	local -a target args
 
@@ -68,10 +68,8 @@ build_package() {
 		suffix="${pair#*:}"
 		args=("VARIANT=$variant" "${target[@]}"
 			"OUTPUT=/output/firmware/${name}${suffix}.bin"
-			"OFFICIAL_${firmware^^}=/inputs/official_${firmware}.bin")
-		if [[ $stored_crc == yes ]]; then
-			args+=("CRC16_FILE=$PACKAGE_ROOT/$package/flashme_v8a_${package}${suffix}.crc16")
-		fi
+			"OFFICIAL_${firmware^^}=/inputs/official_${firmware}.bin"
+			"CRC16_FILE=$PACKAGE_ROOT/$package/flashme_v8a_${package}${suffix}.crc16")
 		compose run --rm builder make -C "$PACKAGE_ROOT/$package" "${args[@]}"
 	done
 }
@@ -134,7 +132,7 @@ confirm_firmware_only() {
 }
 
 build_images() {
-	local update="$1" pair model version
+	local update="$1" pair model version package
 	local -a finalize_args=()
 	mkdir -p out/firmware logs
 	: > "$LOG"
@@ -146,11 +144,9 @@ build_images() {
 	for pair in "${BUILT[@]}"; do
 		model="${pair%%:*}"
 		version="${pair#*:}"
-		if [[ $update == yes ]]; then
-			build_package "${model}_${version}" "$version" "flashme_v8a_${model}_${version}" no
-		else
-			build_package "$model" "$version" "flashme_v8a_${model}_${version}" yes
-		fi
+		package="$model"
+		[[ $update == yes ]] && package="${model}_${version}"
+		build_package "$package" "$version" "flashme_v8a_${model}_${version}"
 	done
 	[[ $update == yes ]] && finalize_args+=(--update)
 	[[ $ABOUT == yes ]] && finalize_args+=(--about)

@@ -32,7 +32,7 @@ The build stops if a file doesn't match its hash. Dump hashes skip each console'
 Each installer holds a Phat image and a Lite image. Each image is built from your dump if you have it, or else taken from the FlashMe release.
 
 *   `build`: Phat v3 and Lite v6, the same as the public installers. No dumps needed. With `official_v3.bin` or `official_v6.bin`, it rebuilds that image and stops if it differs from the public one.
-*   `build --update`: Phat v5 and Lite v7. Experimental. Needs `official_v5.bin`, `official_v7.bin` or both. A missing dump keeps the public v3 or v6 image, so that installer downgrades the other model. The build warns you.
+*   `build --update`: Phat v5 and Lite v7. Experimental. Needs `official_v5.bin`, `official_v7.bin` or both. A missing dump keeps the public v3 or v6 image, so that installer downgrades the other model. The build warns you. It stops if a v5 or v7 image differs from the one recorded in its package.
 
 `build` always cleans first. `./docker-build.sh clean` removes `out/` and `logs/`. The first build from a dump needs internet to set up Docker.
 

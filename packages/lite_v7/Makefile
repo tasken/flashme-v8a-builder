@@ -13,25 +13,25 @@ CRC16_END := 0x3F800
 ifeq ($(VARIANT),normal)
 BUILD_STEALTH := 0
 BUILD_NOAUTO := 0
-OUTPUT := flashme_v8a_lite.bin
+OUTPUT := flashme_v8a_lite_v7.bin
 else ifeq ($(VARIANT),stealth)
 BUILD_STEALTH := 1
 BUILD_NOAUTO := 0
-OUTPUT := flashme_v8a_lite_stealth.bin
+OUTPUT := flashme_v8a_lite_v7_stealth.bin
 else ifeq ($(VARIANT),noauto)
 BUILD_STEALTH := 0
 BUILD_NOAUTO := 1
-OUTPUT := flashme_v8a_lite_noauto.bin
+OUTPUT := flashme_v8a_lite_v7_noauto.bin
 else ifeq ($(VARIANT),stealth-noauto)
 BUILD_STEALTH := 1
 BUILD_NOAUTO := 1
-OUTPUT := flashme_v8a_lite_stealth_noauto.bin
+OUTPUT := flashme_v8a_lite_v7_stealth_noauto.bin
 else
 $(error VARIANT must be normal, stealth, noauto, or stealth-noauto)
 endif
 
-
-
+CRC16_FILE := $(basename $(OUTPUT)).crc16
+CRC16_EXPECTED := $(strip $(file <$(CRC16_FILE)))
 
 .PHONY: all unpack patch pack normal stealth noauto stealth-noauto variants
 
@@ -47,7 +47,7 @@ patch: unpack
 
 pack: patch
 	$(DSFWTOOL) -c $(OUTPUT) --layout layout.ld -h $(BUILD_DIR)/h.bin -p1 -comp -encrypt $(BUILD_DIR)/p1.bin -p2 -comp -encrypt $(BUILD_DIR)/p2.bin -p3 -comp -flashme $(BUILD_DIR)/p3.bin -p4 -comp -flashme $(BUILD_DIR)/p4.bin -p5 -comp -flashme $(BUILD_DIR)/p5.bin -fh $(BUILD_DIR)/fh.bin -fp1 -comp $(BUILD_DIR)/fp1.bin -fp2 -comp $(BUILD_DIR)/fp2.bin -s 256K --fill FF
-	$(call DisplayFlashMeCrc,$(OUTPUT),$(CRC16_END))
+	$(call CheckFlashMeCrc,$(OUTPUT),$(CRC16_END),$(CRC16_EXPECTED))
 
 normal:
 	$(MAKE) VARIANT=normal pack
