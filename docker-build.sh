@@ -118,7 +118,7 @@ confirm_firmware_only() {
 		"These firmware images are not complete. They have no MAC address, Wi-Fi" \
 		"calibration, Wi-Fi settings or user settings. Never write them whole." \
 		"" \
-		"To flash one, use CFW-Suite fwManager (https://github.com/Wokann/CFW-Suite)" \
+		"To flash one, use CFW-Suite fwManager (https://github.com/Wokann/CFW-Suite/releases/latest)" \
 		"and keep its default \"Reserve old ...\" options, which keep your console's" \
 		"own data. Do not choose \"Flash Complete Firmware\"." \
 		"" >&2

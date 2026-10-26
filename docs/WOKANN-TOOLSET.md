@@ -40,7 +40,8 @@ this inventory. Do not treat it as a supplied CFW-Suite tool.
    project uses Wokann's `armips` and the native `dsfwtool` as build
    dependencies; the pinned `dsfwtool` revision supports `--layout`, so the
    source package Makefiles call it directly.
-4. To restore an original dump on a DS/DS Lite, use CFW-Suite `fwManager` from
+4. To restore an original dump on a DS/DS Lite, use CFW-Suite
+   [`fwManager`](https://github.com/Wokann/CFW-Suite/releases/latest) from
    the DSpico storage. Keep a copy of the correct console's backup, select its
    complete firmware image, and follow the on-screen prompt to short SL1 and
    keep it short throughout the write. Keep power stable and do not interrupt

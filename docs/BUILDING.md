@@ -53,7 +53,7 @@ To check that the update installers change only the firmware images: copy `out/`
 
 `--firmware-only` builds only `out/firmware/`, without installers. You must type `yes` to start it.
 
-The images in `out/firmware/` have blank user settings, so they start first-boot setup. Never flash one whole: it would break Wi-Fi and reset your settings. Use [CFW-Suite](https://github.com/Wokann/CFW-Suite) `fwManager`, keep its default `Reserve old ...` options, and do not choose `Flash Complete Firmware`. See [fwManager safety details](WOKANN-TOOLSET.md#fwmanager-safety-details).
+The images in `out/firmware/` have blank user settings, so they start first-boot setup. Never flash one whole: it would break Wi-Fi and reset your settings. Use CFW-Suite [`fwManager`](https://github.com/Wokann/CFW-Suite/releases/latest), keep its default `Reserve old ...` options, and do not choose `Flash Complete Firmware`. See [fwManager safety details](WOKANN-TOOLSET.md#fwmanager-safety-details).
 
 ## About stamp
 
