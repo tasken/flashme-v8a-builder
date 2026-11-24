@@ -21,7 +21,8 @@ Steps (host side, no Docker needed):
 4. Unless --firmware-only, replace the embedded Phat and Lite images inside the
    matching installer from the public release with ours. The installers keep
    their images at fixed offsets, and each slot must already hold a valid
-   stamped image before it is replaced.
+   stamped image before it is replaced. Copy the public noflashme.nds next to
+   them, unchanged.
 """
 import sys
 from pathlib import Path
@@ -131,6 +132,9 @@ def main():
         out.write_bytes(data)
         note = "" if update else f", identical to the public installer: {bytes(data) == public[suf]}"
         print(f"built {out.relative_to(ROOT)} ({len(data)} bytes){note}")
+    out = INST / "noflashme.nds"
+    out.write_bytes(installers["noflashme.nds"])
+    print(f"copied {out.relative_to(ROOT)} ({out.stat().st_size} bytes), the public uninstaller")
 
 
 if __name__ == "__main__":

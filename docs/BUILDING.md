@@ -6,7 +6,7 @@ You need Python 3. Building from a firmware dump also needs Docker with `sudo`.
 
 1. Put the FlashMe v8a release in `inputs/`, as a ZIP or as its `.nds` files. Dumps are optional: put any you have in `inputs/` too, named as in the table below.
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
-1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
+1. Find the installers and the `noflashme.nds` uninstaller in `out/installers/`, and the firmware images in `out/firmware/`.
 
 ```shell
 git clone https://github.com/tasken/flashme-v8a-builder.git
@@ -27,7 +27,7 @@ cd flashme-v8a-builder/
 
 The build stops if a file doesn't match its hash. Dump hashes skip each console's private data (header bytes `0x28` to `0x16F`), so any console's dump of the same firmware matches.
 
-For the release, the build looks for the four installers (`flashme.nds`, `flashme_noauto.nds`, `flashme_stealth.nds`, `flashme_stealth_noauto.nds`) by their own SHA-256, kept in `tools/check_inputs.py`. Any copy works, whatever the ZIP is called. A release packed as RAR files has to be unpacked first, because the build only reads ZIP and `.nds`.
+For the release, the build looks for the four installers (`flashme.nds`, `flashme_noauto.nds`, `flashme_stealth.nds`, `flashme_stealth_noauto.nds`) and `noflashme.nds` by their own SHA-256, kept in `tools/check_inputs.py`. Any copy works, whatever the ZIP is called. A release packed as RAR files has to be unpacked first, because the build only reads ZIP and `.nds`.
 
 ## What gets built
 
@@ -48,6 +48,10 @@ Every installer comes in four variants:
 *   `_stealth_noauto`: both of the above
 
 FlashMe has no menu. It runs whatever DS code the Slot-2 cart holds, such as a flash cart's menu. With nothing to run (empty slot or a GBA game), the screen stays white. Hold power to switch off; nothing is written.
+
+## Uninstaller
+
+`out/installers/noflashme.nds` is the public FlashMe uninstaller, copied unchanged. It removes FlashMe and restores the original firmware: Phat v1 to v5, Lite v6 or Lite v7, so it also works after an `--update` installer.
 
 To check that the update installers change only the firmware images: copy `out/` aside after `build`, run `build --update`, then run `python3 tools/check_installers.py <copy> out`.
 

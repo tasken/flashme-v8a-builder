@@ -11,8 +11,8 @@ address, Wi-Fi calibration and similar) set to FF, so a dump that differs only
 in console-private data gives the same hash. The range ends are the same ones
 dscfw uses for its official CRC-32 check.
 
-The release is the four public installers in inputs/, either inside a ZIP or as
-loose .nds files. Each installer is found by its own SHA-256, so file
+The release is the four public installers and noflashme.nds in inputs/, either
+inside a ZIP or as loose .nds files. Each installer is found by its own SHA-256, so file
 names, ZIP layout and compression do not matter.
 """
 import hashlib
@@ -34,6 +34,7 @@ RELEASE = {
     "flashme_noauto.nds": "3c090be0efe17f011d50cf235920af840b12381db4f52eb7b29397e3246f8d6f",
     "flashme_stealth.nds": "30eca61737385f4c192109cad68e8ba476a78b8cf898164a9ac075ad2bc4c163",
     "flashme_stealth_noauto.nds": "3fda81e5d1a9e30306f978e0e6c64fd178ff13512dcddaa618780f9ae562e48a",
+    "noflashme.nds": "eed66307455c97e08be6017b551c238be3897b5caecca05b59118f0357c7b711",
 }
 
 
@@ -44,7 +45,7 @@ def release_files():
 
 
 def release_installers():
-    """Return the four public installers, by name, from the files in inputs/."""
+    """Return the public installers and noflashme.nds, by name, from the files in inputs/."""
     names = {digest: name for name, digest in RELEASE.items()}
     found = {}
 
@@ -84,7 +85,7 @@ def main():
     args = sys.argv[1:]
     if args == ["--release"]:
         release_installers()
-        print("FlashMe v8a release: all four installers found.")
+        print("FlashMe v8a release: all four installers and noflashme.nds found.")
         return
     show = args[:1] == ["--print"]
     names = args[1:] if show else args
