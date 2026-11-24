@@ -20,7 +20,7 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 
 *   [dscfw](https://github.com/Wokann/dscfw), [dsfwtool](https://github.com/Wokann/dsfwtool) and the [armips](https://github.com/Wokann/armips) fork by `Wokann` do the build. This project drives them and adds `packages/phat_v5/` and `packages/lite_v7/`
 *   [armips](https://github.com/Kingcom/armips) by `Kingcom`
-*   FlashMe v8a, by its original authors
+*   FlashMe v8a, by Loopy, FireFly and DarkFader
 
 ## License
 
