@@ -4,7 +4,7 @@ You need Python 3. Building from a firmware dump also needs Docker with `sudo`.
 
 ## Getting started
 
-1. Put the FlashMe v8a release in `inputs/`, as a ZIP or as its `.nds` files. Dumps are optional: put any you have in `inputs/` too, named as in the table below.
+1. Put the FlashMe v8a release files in `inputs/`, plus any dumps you have, named as in the table below.
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
 1. Find the installers and the `noflashme.nds` uninstaller in `out/installers/`, and the firmware images in `out/firmware/`.
 
@@ -19,15 +19,17 @@ cd flashme-v8a-builder/
 
 | File in `inputs/` | What it is | SHA-256 |
 |---|---|---|
+| `flashme.nds` | FlashMe v8a release | `34185b496ec3775d007bfd572158f78fb14c041b86041330efda65f9d61ad500` |
+| `flashme_noauto.nds` | FlashMe v8a release | `3c090be0efe17f011d50cf235920af840b12381db4f52eb7b29397e3246f8d6f` |
+| `flashme_stealth.nds` | FlashMe v8a release | `30eca61737385f4c192109cad68e8ba476a78b8cf898164a9ac075ad2bc4c163` |
+| `flashme_stealth_noauto.nds` | FlashMe v8a release | `3fda81e5d1a9e30306f978e0e6c64fd178ff13512dcddaa618780f9ae562e48a` |
+| `noflashme.nds` | FlashMe v8a release | `eed66307455c97e08be6017b551c238be3897b5caecca05b59118f0357c7b711` |
 | `official_v3.bin` | Phat, 2005/02/28 | `c8eefb282b96fc6e86c8957dbab95fef5fd3fbd72afd6faaa5b9f0e9bc59bd92` |
 | `official_v5.bin` | Phat, 2005/12/07 | `ef4583cc7d1b670f156d0bd63185113c7ef1985077b46bea1d1b483399f6f3d4` |
 | `official_v6.bin` | Lite, 2006/02/05 | `414ba292764d085fabccf62d4f9d5dfc497365ef7175154ef3c1c6c64588479d` |
 | `official_v7.bin` | Lite, 2006/03/08 | `28c285959d12e3f1ac0980bccd7aa13823f9ff8000b76c83c118bbfff0abcf46` |
-| Any `.zip` or `.nds` | FlashMe v8a release: a ZIP such as `FlashMe_v8a.zip` or `404661-flashmev8afinal.zip`, or the `.nds` files themselves | See below |
 
-The build stops if a file doesn't match its hash. Dump hashes skip each console's private data (header bytes `0x28` to `0x16F`), so any console's dump of the same firmware matches.
-
-For the release, the build looks for the four installers (`flashme.nds`, `flashme_noauto.nds`, `flashme_stealth.nds`, `flashme_stealth_noauto.nds`) and `noflashme.nds` by their own SHA-256, kept in `tools/check_inputs.py`. Any copy works, whatever the ZIP is called. A release packed as RAR files has to be unpacked first, because the build only reads ZIP and `.nds`.
+The release files are needed for every build and are found by hash, whatever their name. The build stops if a file doesn't match its hash. Dump hashes skip each console's private data (header bytes `0x28` to `0x16F`), so any console's dump of the same firmware matches.
 
 ## What gets built
 
@@ -36,7 +38,9 @@ Each installer holds a Phat image and a Lite image. Each image is built from you
 *   `build`: Phat v3 and Lite v6, the same as the public installers. No dumps needed. With `official_v3.bin` or `official_v6.bin`, it rebuilds that image and stops if it differs from the public one.
 *   `build --update`: Phat v5 and Lite v7. Experimental. Needs `official_v5.bin`, `official_v7.bin` or both. A missing dump keeps the public v3 or v6 image, so that installer downgrades the other model. The build warns you. It stops if a v5 or v7 image differs from the one recorded in its package.
 
-`build` always cleans first. `./docker-build.sh clean` removes `out/` and `logs/`. The first build from a dump needs internet to set up Docker.
+Each run builds one set and cleans first, so after `build --update` the default installers are gone until you run `build` again. `./docker-build.sh clean` removes `out/firmware/`, `out/installers/` and the build log. The first build from a dump needs internet to set up Docker.
+
+To check that the update installers change only the firmware images: copy `out/` aside after `build`, run `build --update`, then run `python3 tools/check_installers.py <copy> out`.
 
 ## Variants
 
@@ -53,7 +57,7 @@ FlashMe has no menu. It runs whatever DS code the Slot-2 cart holds, such as a f
 
 `out/installers/noflashme.nds` is the public FlashMe uninstaller, copied unchanged. It removes FlashMe and restores the original firmware: Phat v1 to v5, Lite v6 or Lite v7, so it also works after an `--update` installer.
 
-To check that the update installers change only the firmware images: copy `out/` aside after `build`, run `build --update`, then run `python3 tools/check_installers.py <copy> out`.
+It picks the version from the original firmware ID that the installer saved, and keeps your MAC address, Wi-Fi calibration, Wi-Fi settings and user settings. Keep the version it picks. Select changes it, and nothing stops you from choosing the other model's firmware.
 
 ## Firmware only
 

@@ -1,6 +1,6 @@
 # FlashMe v8a Builder
 
-Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for the latest Phat and Lite firmware.
+Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for the latest Phat and Lite firmware, together with the `noflashme` uninstaller.
 
 > [!CAUTION]
 > Flashing can permanently brick your console. Back up your own `firmware.bin`, use a charged battery and keep the SL1 short ready. Provided as is, with no warranty.
@@ -13,7 +13,7 @@ Build FlashMe v8a installers for the Nintendo DS and DS Lite, including ones for
 
 ## Documentation
 
-*   [Building](docs/BUILDING.md): inputs, build commands, installers, firmware-only builds, version numbers and reporting a problem.
+*   [Building](docs/BUILDING.md): inputs, build commands, installers, the uninstaller, firmware-only builds, version numbers and reporting a problem.
 *   [Wokann DS firmware toolset](docs/WOKANN-TOOLSET.md): related tools for inspecting, building, researching, and restoring DS firmware.
 
 ## Credits
