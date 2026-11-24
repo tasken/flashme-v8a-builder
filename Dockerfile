@@ -2,7 +2,7 @@ FROM debian:stable-slim AS tools
 
 ARG DSCFW_REF=87cab6c5f5093e8845601ce4619a61bb032977f6
 ARG ARMIPS_REF=98757e2fdc79a21a1aeb884d05f4312125fffd68
-ARG DSFWTOOL_REF=71eec8c41946a6df8fb10ed05e6812669e38513b
+ARG DSFWTOOL_REF=113107a03384e435fae50c3db5f5e6c5b478aade
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential ca-certificates cmake git \
@@ -20,6 +20,7 @@ RUN git clone https://github.com/Wokann/dscfw.git /src/dscfw && \
     cmake --install /tmp/armips-build --prefix /usr/local && \
     install -D -m 0755 /usr/local/armips /src/dscfw/tools/armips/armips && \
     git clone https://github.com/Wokann/dsfwtool.git /tmp/dsfwtool && \
+    git -C /tmp/dsfwtool fetch origin "${DSFWTOOL_REF}" && \
     git -C /tmp/dsfwtool checkout --detach "${DSFWTOOL_REF}" && \
     make -C /tmp/dsfwtool dsfwtool && \
     install -m 0755 /tmp/dsfwtool/release/dsfwtool /usr/local/bin/dsfwtool-native && \
