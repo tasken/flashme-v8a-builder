@@ -11,7 +11,6 @@ fi
 VARIANTS=("normal:" "stealth:_stealth" "noauto:_noauto" "stealth-noauto:_stealth_noauto")
 PACKAGE_ROOT=/src/dscfw/flashme/v8a
 LOG=logs/build.log
-ABOUT=no
 FIRMWARE_ONLY=no
 BUILT=()
 PUBLIC=()
@@ -45,28 +44,16 @@ require_inputs() {
 	python3 tools/check_inputs.py "$@"
 }
 
-# Version shown by --about: short commit, "-dirty" with uncommitted changes or untracked files.
-about_version() {
-	local commit
-	commit="$(git rev-parse --short=7 HEAD 2>/dev/null)" || { printf 'nogit'; return; }
-	[[ -z "$(git status --porcelain 2>/dev/null)" ]] || commit+="-dirty"
-	printf '%s' "$commit"
-}
-
 # build_package <package> <firmware> <image-name>; each image must match its package's recorded CRC-16.
 build_package() {
 	local package="$1" firmware="$2" name="$3"
 	local pair variant suffix
-	local -a target args
+	local -a args
 
-	target=(pack)
-	if [[ $ABOUT == yes ]]; then
-		target=(-f Makefile -f ../include/about.mk about "ABOUT_FIRMWARE=${firmware#v}" "BUILD_VERSION=$(about_version)")
-	fi
 	for pair in "${VARIANTS[@]}"; do
 		variant="${pair%%:*}"
 		suffix="${pair#*:}"
-		args=("VARIANT=$variant" "${target[@]}"
+		args=("VARIANT=$variant" pack
 			"OUTPUT=/output/firmware/${name}${suffix}.bin"
 			"OFFICIAL_${firmware^^}=/inputs/official_${firmware}.bin"
 			"CRC16_FILE=$PACKAGE_ROOT/$package/flashme_v8a_${package}${suffix}.crc16")
@@ -97,10 +84,6 @@ plan_build() {
 	done
 	if [[ $update == yes && ${#BUILT[@]} -eq 0 ]]; then
 		echo "--update needs inputs/official_v5.bin, inputs/official_v7.bin or both." >&2
-		return 1
-	fi
-	if [[ $ABOUT == yes && ${#BUILT[@]} -eq 0 ]]; then
-		echo "--about needs at least one firmware dump to build; every slot would come from the public release." >&2
 		return 1
 	fi
 	if [[ $FIRMWARE_ONLY == no || ${#PUBLIC[@]} -gt 0 || -f inputs/flashme/FlashMe_v8a.zip ]]; then
@@ -149,14 +132,13 @@ build_images() {
 		build_package "$package" "$version" "flashme_v8a_${model}_${version}"
 	done
 	[[ $update == yes ]] && finalize_args+=(--update)
-	[[ $ABOUT == yes ]] && finalize_args+=(--about)
 	[[ $FIRMWARE_ONLY == yes ]] && finalize_args+=(--firmware-only)
 	python3 tools/finalize.py "${finalize_args[@]}" 2>&1 | tee -a "$LOG"
 	python3 tools/fresh_settings.py out/firmware/*.bin 2>&1 | tee -a "$LOG"
 }
 
 usage() {
-	printf '%s\n' "Usage: ./docker-build.sh build [--update] [--about] [--firmware-only]" "       ./docker-build.sh clean" >&2
+	printf '%s\n' "Usage: ./docker-build.sh build [--update] [--firmware-only]" "       ./docker-build.sh clean" >&2
 	exit 2
 }
 
@@ -166,7 +148,6 @@ case "${1:-build}" in
 		for option in "${@:2}"; do
 			case "$option" in
 				--update) update=yes ;;
-				--about) ABOUT=yes ;;
 				--firmware-only) FIRMWARE_ONLY=yes ;;
 				*) usage ;;
 			esac

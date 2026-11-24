@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Stamp the installer CRC-16 into the firmware images and build the installers.
 
-usage: finalize.py [--update] [--about] [--firmware-only]
+usage: finalize.py [--update] [--firmware-only]
   default          Phat v3 and Lite v6 -> out/installers/flashme_v8a<variant>.nds
   --update         Phat v5 and Lite v7 -> out/installers/flashme_v8a_update<variant>.nds
-  --about          the built images carry the About stamp, so they are not
-                   compared with the public release
   --firmware-only  stop after out/firmware and build no installers
 
 Each model uses the images ./docker-build.sh built into out/firmware. A model
@@ -18,7 +16,7 @@ Steps (host side, no Docker needed):
 2. For every image in out/firmware, write CRC-16 (init 0xFFFF, poly 0xA001) of
    bytes [0, 0x3FDFE) as a little-endian u16 at 0x3FDFE. The FlashMe installer
    (arm7.c) refuses images whose stored value does not match.
-3. Default build without --about: every built image must equal the public one.
+3. Default build: every built image must equal the public one.
    This runs whenever the FlashMe release is present, even with --firmware-only.
 4. Unless --firmware-only, replace the embedded Phat and Lite images inside the
    matching installer from the public release with ours. The installers keep
@@ -75,10 +73,9 @@ def was_built(model):
 
 def main():
     args = sys.argv[1:]
-    if not set(args) <= {"--update", "--about", "--firmware-only"} or len(set(args)) != len(args):
+    if not set(args) <= {"--update", "--firmware-only"} or len(set(args)) != len(args):
         sys.exit(__doc__)
     update = "--update" in args
-    about = "--about" in args
     firmware_only = "--firmware-only" in args
     versions = UPDATE_VERSIONS if update else PUBLIC_VERSIONS
     built = {slot: was_built(f"{slot}_{versions[slot]}") for slot in SLOTS}
@@ -99,8 +96,7 @@ def main():
         name = NAMES[slot]
         if built[slot]:
             model = f"{slot}_{versions[slot]}"
-            stamp = " with the About stamp" if about else ""
-            print(f"{name}: built from inputs/official_{versions[slot]}.bin{stamp}")
+            print(f"{name}: built from inputs/official_{versions[slot]}.bin")
         else:
             model = f"{slot}_{PUBLIC_VERSIONS[slot]}"
             print(f"{name}: public {name} {PUBLIC_VERSIONS[slot]} image (no inputs/official_{versions[slot]}.bin)")
@@ -119,7 +115,7 @@ def main():
             p.write_bytes(d)
             images[(slot, suf)] = bytes(d[:EMBED_LEN])
             print(f"stamped {p.name}: CRC-16 0x{crc:04X}")
-            if built[slot] and not update and not about and public:
+            if built[slot] and not update and public:
                 if images[(slot, suf)] != public[suf][start:start + EMBED_LEN]:
                     sys.exit(f"{p.name} differs from the image in the public release; see logs/build.log")
 
