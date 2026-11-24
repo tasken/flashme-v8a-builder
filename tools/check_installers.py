@@ -7,8 +7,9 @@ only inside the Phat and Lite image slots.
 Optional manual check, not part of ./docker-build.sh.
 """
 import sys
-import zipfile
 from pathlib import Path
+
+from check_inputs import release_installers
 
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS = (0x1434, 0x41234)
@@ -25,15 +26,15 @@ def main():
         sys.exit(__doc__)
     default_dir, update_dir = (Path(a) for a in sys.argv[1:])
     ok = True
-    with zipfile.ZipFile(ROOT / "inputs/flashme/FlashMe_v8a.zip") as z:
-        for suf in VARIANTS:
-            pub = z.read(f"flashme{suf}.nds")
-            dflt = (default_dir / "installers" / f"flashme_v8a{suf}.nds").read_bytes()
-            upd = (update_dir / "installers" / f"flashme_v8a_update{suf}.nds").read_bytes()
-            same = dflt == pub
-            outside = len(upd) != len(pub) or any(a != b and not in_slot(i) for i, (a, b) in enumerate(zip(pub, upd)))
-            print(f"{suf or 'normal':16} default equals public: {same}   update changes only the image slots: {not outside}")
-            ok = ok and same and not outside
+    installers = release_installers()
+    for suf in VARIANTS:
+        pub = installers[f"flashme{suf}.nds"]
+        dflt = (default_dir / "installers" / f"flashme_v8a{suf}.nds").read_bytes()
+        upd = (update_dir / "installers" / f"flashme_v8a_update{suf}.nds").read_bytes()
+        same = dflt == pub
+        outside = len(upd) != len(pub) or any(a != b and not in_slot(i) for i, (a, b) in enumerate(zip(pub, upd)))
+        print(f"{suf or 'normal':16} default equals public: {same}   update changes only the image slots: {not outside}")
+        ok = ok and same and not outside
     sys.exit(0 if ok else 1)
 
 

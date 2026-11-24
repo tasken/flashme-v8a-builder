@@ -30,9 +30,10 @@ compose() {
 	sudo docker compose "$@" 2>&1 | tee -a "$LOG"
 }
 
-# Every named input must exist and match tools/inputs.sha256 (see tools/check_inputs.py for the hash rules).
+# Every named dump must exist and match tools/inputs.sha256 (see tools/check_inputs.py for the hash rules).
 require_inputs() {
 	local file
+	[[ $# -gt 0 ]] || return 0
 	for file in "$@"; do
 		if [[ ! -f "inputs/$file" ]]; then
 			printf '%s\n' \
@@ -86,10 +87,11 @@ plan_build() {
 		echo "--update needs inputs/official_v5.bin, inputs/official_v7.bin or both." >&2
 		return 1
 	fi
-	if [[ $FIRMWARE_ONLY == no || ${#PUBLIC[@]} -gt 0 || -f inputs/flashme/FlashMe_v8a.zip ]]; then
-		files+=(flashme/FlashMe_v8a.zip)
-	fi
 	require_inputs "${files[@]}"
+	if [[ $FIRMWARE_ONLY == no || ${#PUBLIC[@]} -gt 0 ]] \
+		|| compgen -G 'inputs/*.zip' > /dev/null || compgen -G 'inputs/*.nds' > /dev/null; then
+		python3 tools/check_inputs.py --release
+	fi
 }
 
 # Raw images lack the console's own data, so --firmware-only asks before anything runs.

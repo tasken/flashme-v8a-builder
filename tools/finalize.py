@@ -7,8 +7,8 @@ usage: finalize.py [--update] [--firmware-only]
   --firmware-only  stop after out/firmware and build no installers
 
 Each model uses the images ./docker-build.sh built into out/firmware. A model
-with none there (its dump was not supplied) uses the public image from
-inputs/flashme/FlashMe_v8a.zip instead: Phat v3 or Lite v6.
+with none there (its dump was not supplied) uses the public image from the
+FlashMe v8a release in inputs/ instead: Phat v3 or Lite v6.
 
 Steps (host side, no Docker needed):
 1. Write the public images of every model that was not built to out/firmware,
@@ -24,14 +24,14 @@ Steps (host side, no Docker needed):
    stamped image before it is replaced.
 """
 import sys
-import zipfile
 from pathlib import Path
+
+from check_inputs import release_files, release_installers
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "out"
 FW = OUT / "firmware"
 INST = OUT / "installers"
-ZIP = ROOT / "inputs" / "flashme" / "FlashMe_v8a.zip"
 
 IMAGE_LEN = 0x40000
 CRC_OFFSET = 0x3FDFE
@@ -80,12 +80,10 @@ def main():
     versions = UPDATE_VERSIONS if update else PUBLIC_VERSIONS
     built = {slot: was_built(f"{slot}_{versions[slot]}") for slot in SLOTS}
 
-    if (not firmware_only or not all(built.values())) and not ZIP.is_file():
-        sys.exit(f"missing {ZIP.relative_to(ROOT)}; the installers and the public images need the FlashMe v8a release")
     public = {}
-    if ZIP.is_file():
-        with zipfile.ZipFile(ZIP) as z:
-            public = {suf: z.read(nds) for suf, nds in VARIANTS.items()}
+    if not firmware_only or not all(built.values()) or release_files():
+        installers = release_installers()
+        public = {suf: installers[nds] for suf, nds in VARIANTS.items()}
         for data in public.values():
             for slot, start in SLOTS.items():
                 check_slot(data, start, slot)

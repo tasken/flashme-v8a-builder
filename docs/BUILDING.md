@@ -4,7 +4,7 @@ You need Python 3. Building from a firmware dump also needs Docker with `sudo`.
 
 ## Getting started
 
-1. Put the FlashMe v8a release in `inputs/flashme/`. Dumps are optional: put any you have in `inputs/`, named as in the table below.
+1. Put the FlashMe v8a release in `inputs/`, as a ZIP or as its `.nds` files. Dumps are optional: put any you have in `inputs/` too, named as in the table below.
 1. Run `./docker-build.sh build`, or `./docker-build.sh build --update` for the latest firmware.
 1. Find the installers in `out/installers/` and the firmware images in `out/firmware/`.
 
@@ -23,9 +23,11 @@ cd flashme-v8a-builder/
 | `official_v5.bin` | Phat, 2005/12/07 | `ef4583cc7d1b670f156d0bd63185113c7ef1985077b46bea1d1b483399f6f3d4` |
 | `official_v6.bin` | Lite, 2006/02/05 | `414ba292764d085fabccf62d4f9d5dfc497365ef7175154ef3c1c6c64588479d` |
 | `official_v7.bin` | Lite, 2006/03/08 | `28c285959d12e3f1ac0980bccd7aa13823f9ff8000b76c83c118bbfff0abcf46` |
-| `flashme/FlashMe_v8a.zip` | FlashMe v8a release | `6bb7efdba869a0d8887f176770d2f6c2c3ae880dec94f436bb9f6a8c879c16be` |
+| Any `.zip` or `.nds` | FlashMe v8a release: a ZIP such as `FlashMe_v8a.zip` or `404661-flashmev8afinal.zip`, or the `.nds` files themselves | See below |
 
 The build stops if a file doesn't match its hash. Dump hashes skip each console's private data (header bytes `0x28` to `0x16F`), so any console's dump of the same firmware matches.
+
+For the release, the build looks for the four installers (`flashme.nds`, `flashme_noauto.nds`, `flashme_stealth.nds`, `flashme_stealth_noauto.nds`) by their own SHA-256, kept in `tools/check_inputs.py`. Any copy works, whatever the ZIP is called. A release packed as RAR files has to be unpacked first, because the build only reads ZIP and `.nds`.
 
 ## What gets built
 
