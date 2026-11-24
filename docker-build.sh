@@ -61,7 +61,7 @@ build_package() {
 			"OUTPUT=/output/firmware/${name}${suffix}.bin"
 			"OFFICIAL_${firmware^^}=/inputs/official_${firmware}.bin"
 			"CRC16_FILE=$PACKAGE_ROOT/$package/flashme_v8a_${package}${suffix}.crc16")
-		compose run --rm builder make -C "$PACKAGE_ROOT/$package" "${args[@]}"
+		compose run --rm -T builder make -C "$PACKAGE_ROOT/$package" "${args[@]}"
 	done
 }
 
