@@ -104,6 +104,8 @@ def main():
         elif got != expected.get(name):
             print(f"inputs/{name} does not match the expected SHA-256 in tools/inputs.sha256.", file=sys.stderr)
             ok = False
+        else:
+            print(f"inputs/{name}: SHA-256 matches")
     sys.exit(0 if ok else 1)
 
 

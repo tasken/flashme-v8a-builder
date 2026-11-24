@@ -11,6 +11,9 @@ fi
 VARIANTS=("normal:" "stealth:_stealth" "noauto:_noauto" "stealth-noauto:_stealth_noauto")
 PACKAGE_ROOT=/src/dscfw/flashme/v8a
 LOG=logs/build.log
+# Input checks run before clean() empties logs/, so their output waits here until the log exists.
+CHECK_LOG="$(mktemp)"
+trap 'rm -f -- "$CHECK_LOG"' EXIT
 FIRMWARE_ONLY=no
 BUILT=()
 PUBLIC=()
@@ -42,7 +45,7 @@ require_inputs() {
 			return 1
 		fi
 	done
-	python3 tools/check_inputs.py "$@"
+	python3 tools/check_inputs.py "$@" 2>&1 | tee -a "$CHECK_LOG"
 }
 
 # build_package <package> <firmware> <image-name>; each image must match its package's recorded CRC-16.
@@ -90,7 +93,7 @@ plan_build() {
 	require_inputs "${files[@]}"
 	if [[ $FIRMWARE_ONLY == no || ${#PUBLIC[@]} -gt 0 ]] \
 		|| compgen -G 'inputs/*.zip' > /dev/null || compgen -G 'inputs/*.nds' > /dev/null; then
-		python3 tools/check_inputs.py --release
+		python3 tools/check_inputs.py --release 2>&1 | tee -a "$CHECK_LOG"
 	fi
 }
 
@@ -120,7 +123,7 @@ build_images() {
 	local update="$1" pair model version package
 	local -a finalize_args=()
 	mkdir -p out/firmware logs
-	: > "$LOG"
+	cat -- "$CHECK_LOG" > "$LOG"
 
 	if [[ ${#BUILT[@]} -gt 0 ]]; then
 		sync_env
